@@ -2,22 +2,46 @@ package com.bscideas.telegrambot.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
-@Document
+@Entity
+@Table(name = "intern")
 public class Intern {
 
     @Id
-    private String id;
+    @GeneratedValue
+    private Long id;
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "last_name")
     private String lastName;
+
+    @Column(name = "patronymic")
     private String patronymic;
+
+    @Column(name = "fio")
     private String fio;
+
+    @Column(name = "telegram_id")
     private String telegramId;
-    private String internshipId;
+
+    @ManyToMany
+    @JoinTable(name = "intern_internship",
+            joinColumns = {@JoinColumn(name = "intern_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "internship_id", referencedColumnName = "id")})
+    private Set<Internship> internship;
+
+    @OneToMany(mappedBy = "intern", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Homework> homework;
+
+    @Column(name = "status")
+    @Enumerated(value = EnumType.STRING)
     private InternStatus status;
 
 }

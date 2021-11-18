@@ -1,14 +1,30 @@
+server:
+  port:
+    8080
 spring:
-  data:
-    mongodb:
-      username: test
-      password: test
-      host: localhost
-      port: 27017
-      database: mongo
-
+  datasource:
+    url:
+      jdbc:postgresql://localhost:5432/telegram-bot
+    username:
+      postgres
+    password:
+      root
+  jpa:
+    database-platform:
+      org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl:
+      true
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation:
+              true
+        temp:
+          use_jdbc_metadata_defaults:
+            false
 bot:
   username:
     bsc-homework-checker
   token:
-    
+

@@ -2,20 +2,35 @@ package com.bscideas.telegrambot.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.persistence.*;
 
 @Getter
 @Setter
-@Document
+@Entity
+@Table(name = "homework")
 public class Homework {
 
     @Id
-    private String id;
+    @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "intern_id")
     private Intern intern;
+
+    @Column(name = "status")
+    @Enumerated(value = EnumType.STRING)
     private HomeworkStatus status;
+
+    @Column(name = "description")
     private String description;
+
+    @Column(name = "homework_url")
     private String homeworkUrl;
-    private Mentor currentMentor;
+
+    @ManyToOne
+    @JoinColumn(name = "mentor_id")
+    private Mentor mentor;
 
 }
