@@ -1,10 +1,21 @@
 package com.bscideas.telegrambot.bot.command;
 
 public enum Command {
-    NONE,
-    NOT_FOR_ME,
-    NOTIFY,
-    START,
-    HELP,
-    ID
+    INFO("/info"),
+    START("/start"),
+    REGISTER("/register"),
+    CREATE_HOMEWORK("/create_homework"),
+    GET_HOMEWORK("/get_homework"),
+    DEMO("/demo");
+
+
+    private final String command;
+
+    Command(String command) {
+        this.command = command;
+    }
+
+    public String getCommand() {
+        return command;
+    }
 }

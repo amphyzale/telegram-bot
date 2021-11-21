@@ -9,12 +9,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "mentor")
-public class Mentor {
-
-    @Id
-    @GeneratedValue
-    private Long id;
+@DiscriminatorValue("mentor")
+public class Mentor extends User {
 
     @ManyToMany
     @JoinTable(name = "mentor_internship",
@@ -22,19 +18,7 @@ public class Mentor {
             inverseJoinColumns = {@JoinColumn(name = "internship_id", referencedColumnName = "id")})
     private Set<Internship> internship;
 
-    @Column(name = "telegram_id")
-    private String telegramId;
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "last_name")
-    private String lastName;
-
-    @Column(name = "patronymic")
-    private String patronymic;
-
-    @Column(name = "fio")
-    private String fio;
+    @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Homework> homework;
 
 }

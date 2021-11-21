@@ -16,6 +16,10 @@ public class Homework {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "mentor_id")
+    private Mentor mentor;
+
+    @ManyToOne
     @JoinColumn(name = "intern_id")
     private Intern intern;
 
@@ -28,9 +32,5 @@ public class Homework {
 
     @Column(name = "homework_url")
     private String homeworkUrl;
-
-    @ManyToOne
-    @JoinColumn(name = "mentor_id")
-    private Mentor mentor;
 
 }

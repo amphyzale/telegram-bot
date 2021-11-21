@@ -1,6 +1,6 @@
 package com.bscideas.telegrambot.model;
 
-public enum InternStatus {
+public enum UserStatus {
 
     ACTIVE,
     DONE

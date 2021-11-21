@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  db:
+  db-telegram-bot:
     container_name: telegram-bot
     image: postgres
     restart: always
