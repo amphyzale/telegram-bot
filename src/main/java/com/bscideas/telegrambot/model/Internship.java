@@ -18,14 +18,14 @@ public class Internship {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "chatId")
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "chat_id")
     private String chatId;
 
-    @Column(name = "intern_check_word")
-    private String internCheckWord;
-
-    @Column(name = "mentor_check_word")
-    private String mentorCheckWord;
+    @Column(name = "check_word")
+    private String checkWord;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)

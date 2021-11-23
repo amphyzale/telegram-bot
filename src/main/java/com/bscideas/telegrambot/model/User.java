@@ -44,4 +44,10 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserStatus status;
 
+    @ManyToMany
+    @JoinTable(name = "user_internship",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "internship_id", referencedColumnName = "id")})
+    private Set<Internship> internship;
+
 }

@@ -30,7 +30,7 @@ public class HomeworkBot extends TelegramLongPollingBot {
 
     private final String INFO_LABEL = "О чем канал?";
     private final String REGISTER_LABEL = "Зарегистрироваться";
-    private final String CREATE_HOMEWORK_LABEL = "Передать ДЗ на проверку";
+    private final String CREATE_HOMEWORK_LABEL = "Отправить ДЗ на проверку";
     private final String GET_HOMEWORK_LABEL = "Получить список ДЗ в ожидании проверки";
     private final String CHECK_HOMEWORK_LABEL = "Проверить ДЗ";
     private final String DEMO_LABEL = "Какая то функция 2";
