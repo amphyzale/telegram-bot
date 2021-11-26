@@ -1,5 +1,10 @@
 package com.bscideas.telegrambot.model;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum HomeworkStatus {
 
     WAITING("В ожидании проверки"),
@@ -7,6 +12,5 @@ public enum HomeworkStatus {
     ON_CORRECTIONS("Исправление замечаний"),
     DONE("Готово");
 
-    HomeworkStatus(String status) {
-    }
+    private final String text;
 }

@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -33,6 +34,11 @@ public class HomeworkManagerImpl implements HomeworkManager {
     }
 
     @Override
+    public Optional<Homework> getHomework(String homeworkId) {
+        return homeworkRepository.findById(homeworkId);
+    }
+
+    @Override
     public List<Homework> getHomeworks(String telegramId, HomeworkStatus status) {
         //TODO may by add authenticate MENTOR or INTERN check? And Internship filter
         return homeworkRepository.findAllByStatus(status);
@@ -44,7 +50,7 @@ public class HomeworkManagerImpl implements HomeworkManager {
     }
 
     @Override
-    public void toResolveHomework(String mentorId, String homeworkId, String status) {
+    public void toResolveHomework(String mentorId, String homeworkId, HomeworkStatus status) {
 
     }
 

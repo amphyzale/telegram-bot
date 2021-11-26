@@ -1,6 +1,7 @@
 package com.bscideas.telegrambot.bot;
 
 import com.bscideas.telegrambot.bot.command.Command;
+import com.bscideas.telegrambot.configuration.TelegramBotConfiguration;
 import com.bscideas.telegrambot.manger.HomeworkManager;
 import com.bscideas.telegrambot.manger.RegistrationManager;
 import com.bscideas.telegrambot.model.Homework;
@@ -37,25 +38,20 @@ public class HomeworkBot extends TelegramLongPollingBot {
 
     private final Map<Long, List<Message>> registrationMap = new HashMap<>();
     private final Map<Long, List<Message>> createHomeworkMap = new HashMap<>();
-    Map<Long, CallbackQuery> callbackMap = new HashMap<>();
+    private final Map<Long, List<Message>> checkHomeworkMap = new HashMap<>();
 
     private final HomeworkManager homeworkManager;
     private final RegistrationManager registrationManager;
-
-    @Value("${bot.username}")
-    private String name;
-
-    @Value("${bot.token}")
-    private String token;
+    private final TelegramBotConfiguration telegramBotConfiguration;
 
     @Override
     public String getBotUsername() {
-        return name;
+        return telegramBotConfiguration.getName();
     }
 
     @Override
     public String getBotToken() {
-        return token;
+        return telegramBotConfiguration.getToken();
     }
 
     @Override
@@ -63,7 +59,6 @@ public class HomeworkBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             handleMessage(update.getMessage());
         } else if (update.hasCallbackQuery()) {
-            callbackMap.put(update.getCallbackQuery().getFrom().getId(), update.getCallbackQuery());
             handleCallback(update.getCallbackQuery());
         }
     }
@@ -114,6 +109,9 @@ public class HomeworkBot extends TelegramLongPollingBot {
         if (text.equals(Command.GET_HOMEWORK.getCommand())) {
             return handleGetHomeworkCommand();
         }
+        if (text.equals(Command.CHECK_HOMEWORK.getCommand())) {
+            return handleCheckHomeworkCommand(user, message);
+        }
         if (text.equals(Command.DEMO.getCommand())) {
             return handleDemoCommand(user.getUserName(), String.valueOf(user.getId()), user.getFirstName(), chatId);
         }
@@ -163,14 +161,7 @@ public class HomeworkBot extends TelegramLongPollingBot {
             return sendMessage;
         }
         final Homework homework = homeworkManager.createHomework(user.getId().toString(), message.getText());
-        final SendMessage notifyMessage = new SendMessage();
-        notifyMessage.setText("Новая домашка на проверку c айди: " + homework.getId() + "!");
-        notifyMessage.setChatId("274620288"); //TODO ID BSC Academy channel
-        try {
-            execute(notifyMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        notifyUser("274620288", "Новая домашка на проверку c айди: " + homework.getId() + "!");
         sendMessage.setText("ДЗ отправлено на проверку");
         sendMessage.setReplyMarkup(getKeyboard());
         createHomeworkMap.remove(user.getId());
@@ -178,11 +169,52 @@ public class HomeworkBot extends TelegramLongPollingBot {
     }
 
     private SendMessage handleGetHomeworkCommand() {
-        SendMessage message = new SendMessage();
+        final SendMessage message = new SendMessage();
         final String homeworks = homeworkManager.getHomeworks(null, HomeworkStatus.WAITING).stream()
                 .map(i -> "HomeworkId: {" + i.getId() + "}, status: {" + i.getStatus() + "}, url: {" + i.getHomeworkUrl() + "}, from: {" + i.getMentor().getUsername() + "}")
                 .collect(Collectors.joining("\n"));
         message.setText(homeworks);
+        message.setReplyMarkup(getKeyboard());
+        return message;
+    }
+
+    private SendMessage handleCheckHomeworkCommand(User user, Message message) {
+        final SendMessage sendMessage = new SendMessage();
+        final List<Message> messageList = checkHomeworkMap.get(user.getId());
+        if (messageList == null) {
+            checkHomeworkMap.put(user.getId(), new LinkedList<>());
+            sendMessage.setText("Введите ID ДЗ на проверку или ID ДЗ и статус для изменения");
+            return sendMessage;
+        }
+        final String[] data = message.getText().split("\\s");
+        if (data.length == 1) {
+            final String homeworkId = data[0];
+            homeworkManager.toCheckHomework(user.getId().toString(), homeworkId);
+            sendMessage.setText("ДЗ с id: {" + homeworkId + "} взята на проверку!");
+            sendMessage.setReplyMarkup(getKeyboard());
+            //TODO notification for Intern?
+            checkHomeworkMap.remove(user.getId());
+            return sendMessage;
+        }
+        final String homeworkId = data[0];
+        final HomeworkStatus status = HomeworkStatus.valueOf(data[1]);
+        final Optional<Homework> homework = homeworkManager.getHomework(homeworkId);
+        if (homework.isPresent() && homework.get().getStatus() != HomeworkStatus.ON_CHECK) {
+            sendMessage.setText("Данная работа уже на проверке");
+            sendMessage.setReplyMarkup(getKeyboard());
+            checkHomeworkMap.remove(user.getId());
+            return sendMessage;
+        }
+        homeworkManager.toResolveHomework(user.getId().toString(), homeworkId, status);
+        homework.ifPresent(i -> notifyUser(i.getIntern().getTelegramId(), "Ваша работа переведена в статус: {" + status.getText()));
+        checkHomeworkMap.remove(user.getId());
+        sendMessage.setText("ДЗ успешно переведена в статус: {" + status.getText() + "}");
+        sendMessage.setReplyMarkup(getKeyboard());
+        return sendMessage;
+    }
+
+    private SendMessage handleDemoCommand(String username, String id, String name, String chatId) throws TelegramApiException {
+        SendMessage message = new SendMessage();
         message.setReplyMarkup(getKeyboard());
         return message;
     }
@@ -194,10 +226,15 @@ public class HomeworkBot extends TelegramLongPollingBot {
         return message;
     }
 
-    private SendMessage handleDemoCommand(String username, String id, String name, String chatId) throws TelegramApiException {
-        SendMessage message = new SendMessage();
-        message.setReplyMarkup(getKeyboard());
-        return message;
+    private void notifyUser(String chatId, String message) {
+        final SendMessage notifyMessage = new SendMessage();
+        notifyMessage.setText(message);
+        notifyMessage.setChatId("274620288"); //TODO ID BSC Academy channel
+        try {
+            execute(notifyMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
     private InlineKeyboardMarkup getKeyboard() {
@@ -225,11 +262,17 @@ public class HomeworkBot extends TelegramLongPollingBot {
         final List<InlineKeyboardButton> keyboardButtonsRow3 = new ArrayList<>();
         keyboardButtonsRow3.add(inlineKeyboardButtonGetHomework);
 
+        final InlineKeyboardButton inlineKeyboardButtonCheckHomework = new InlineKeyboardButton();
+        inlineKeyboardButtonCheckHomework.setText(CHECK_HOMEWORK_LABEL);
+        inlineKeyboardButtonCheckHomework.setCallbackData(Command.CHECK_HOMEWORK.getCommand());
+        final List<InlineKeyboardButton> keyboardButtonsRow4 = new ArrayList<>();
+        keyboardButtonsRow4.add(inlineKeyboardButtonCheckHomework);
+
         final InlineKeyboardButton inlineKeyboardButtonDemo = new InlineKeyboardButton();
         inlineKeyboardButtonDemo.setText(DEMO_LABEL);
         inlineKeyboardButtonDemo.setCallbackData(Command.DEMO.getCommand());
-        final List<InlineKeyboardButton> keyboardButtonsRow4 = new ArrayList<>();
-        keyboardButtonsRow4.add(inlineKeyboardButtonDemo);
+        final List<InlineKeyboardButton> keyboardButtonsRow5 = new ArrayList<>();
+        keyboardButtonsRow5.add(inlineKeyboardButtonDemo);
 
         final List<List<InlineKeyboardButton>> keyboardButtons = new ArrayList<>();
         keyboardButtons.add(keyboardButtonsRow0);
@@ -237,6 +280,7 @@ public class HomeworkBot extends TelegramLongPollingBot {
         keyboardButtons.add(keyboardButtonsRow2);
         keyboardButtons.add(keyboardButtonsRow3);
         keyboardButtons.add(keyboardButtonsRow4);
+        keyboardButtons.add(keyboardButtonsRow5);
 
         final InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(keyboardButtons);
