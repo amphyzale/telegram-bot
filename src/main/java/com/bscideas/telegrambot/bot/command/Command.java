@@ -7,7 +7,7 @@ public enum Command {
     CREATE_HOMEWORK("/create_homework"),
     GET_HOMEWORK("/get_homework"),
     CHECK_HOMEWORK("/check_homework"),
-    DEMO("/demo");
+    CORRECT_HOMEWORK("/correct_homework");
 
 
     private final String command;

@@ -8,11 +8,12 @@ import java.util.Optional;
 
 public interface HomeworkManager {
 
-    Homework createHomework(String telegramId, String url);
-    Optional<Homework> getHomework(String homeworkId);
-    List<Homework> getHomeworks(String telegramId, HomeworkStatus status);
-    void toCheckHomework(String mentorId, String homeworkId);
-    void toResolveHomework(String mentorId, String homeworkId, HomeworkStatus status);
-    Homework correctHomework(String telegramId, String homeworkId);
+    Homework createHomework(String telegramId, String url, String internshipName);
+    Optional<Homework> getHomework(Long homeworkId);
+    List<Homework> getHomeworksByStatus(String telegramId, HomeworkStatus status);
+    void toCheckHomework(String mentorId, Long homeworkId);
+    void toResolveHomework(String mentorId, Long homeworkId, HomeworkStatus status);
+    Homework correctHomework(Long homeworkId);
+    List<Homework> getHomeworksByStatusAndUser(HomeworkStatus status, String telegramId);
 
 }

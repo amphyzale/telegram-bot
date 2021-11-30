@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -30,5 +31,8 @@ public class Internship {
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
     private InternshipStatus status;
+
+    @OneToMany(mappedBy = "internship")
+    private Set<Homework> homeworkList;
 
 }

@@ -13,6 +13,6 @@ import java.util.Set;
 public class Mentor extends User {
 
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Homework> homework;
+    private Set<Homework> homeworkList;
 
 }

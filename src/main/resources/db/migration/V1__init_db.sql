@@ -1,11 +1,12 @@
 create table homework
 (
-    id           int8 not null,
-    status       varchar(255),
-    description  varchar(255),
-    homework_url varchar(255),
-    mentor_id    int8,
-    intern_id    int8,
+    id            int8 not null,
+    status        varchar(255),
+    description   varchar(255),
+    homework_url  varchar(255),
+    mentor_id     int8,
+    intern_id     int8,
+    internship_id int8,
     primary key (id)
 );
 
@@ -43,16 +44,20 @@ create table user_internship
 
 alter table if exists user_internship
     add constraint fk_user_internship
-    foreign key (user_id) references user_data;
+        foreign key (user_id) references user_data;
 
 alter table if exists user_internship
     add constraint fk_internship_user
-    foreign key (internship_id) references internship;
+        foreign key (internship_id) references internship;
 
 alter table if exists homework
     add constraint fk_homework_mentor
-    foreign key (mentor_id) references user_data;
+        foreign key (mentor_id) references user_data;
 
 alter table if exists homework
     add constraint fk_homework_intern
-    foreign key (intern_id) references user_data;
+        foreign key (intern_id) references user_data;
+
+alter table if exists homework
+    add constraint fk_homework_internship
+        foreign key (internship_id) references internship;

@@ -33,4 +33,8 @@ public class Homework {
     @Column(name = "homework_url")
     private String homeworkUrl;
 
+    @ManyToOne
+    @JoinColumn(name = "internship_id")
+    private Internship internship;
+
 }

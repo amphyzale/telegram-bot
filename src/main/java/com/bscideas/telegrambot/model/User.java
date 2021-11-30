@@ -48,6 +48,6 @@ public class User {
     @JoinTable(name = "user_internship",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "internship_id", referencedColumnName = "id")})
-    private Set<Internship> internship;
+    private Set<Internship> internshipList;
 
 }
