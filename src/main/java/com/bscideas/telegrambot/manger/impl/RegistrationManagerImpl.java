@@ -35,6 +35,6 @@ public class RegistrationManagerImpl implements RegistrationManager {
     }
 
     private UserRole resolveRole(String checkWord) {
-        return checkWord.equals("TODO") ? UserRole.MENTOR : UserRole.INTERN; //TODO
+        return "TODO".equals(checkWord) ? UserRole.MENTOR : UserRole.INTERN; //TODO
     }
 }
